@@ -10,9 +10,10 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/tvDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Day ex) 2019 10 11"
+            android:text="@string/day_list_title"
             android:textSize="30sp" />
 
         <ListView
@@ -21,10 +22,10 @@
             android:layout_weight="1"/>
 
         <Button
-            android:id="@+id/btnTodoAdd"
+            android:id="@+id/btnAddEvent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="추가" />
+            android:text="@string/day_list_btn" />
     </LinearLayout>
 
 </FrameLayout>

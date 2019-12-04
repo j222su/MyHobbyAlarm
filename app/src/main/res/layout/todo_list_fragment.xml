@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -9,11 +10,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <android.support.design.widget.CoordinatorLayout
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -27,7 +24,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight=".5"
-                    android:background="?attr/colorPrimary"
+                    android:background="@color/listTitlePrimary"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -49,8 +46,7 @@
                             android:inputType="textAutoCorrect|textCapSentences"
                             android:lines="2"
                             android:maxLength="30"
-                            android:maxLines="3"
-                            android:textColor="@color/icons" />
+                            android:maxLines="3" />
 
                     </com.example.myhobbyalarm.Utility.CustomTextInputLayout>
 
@@ -73,12 +69,11 @@
                         android:layout_marginRight="32dp"
                         android:layout_weight="0"
                         android:gravity="start|bottom"
-                        android:hint="@string/description"
+                        android:hint="add add"
                         android:inputType="textMultiLine|textCapSentences"
                         android:lines="2"
                         android:maxLines="3"
-                        android:scrollbars="vertical"
-                        android:textColor="@color/icons" />
+                        android:scrollbars="vertical" />
 
                 </com.example.myhobbyalarm.Utility.CustomTextInputLayout>
 
@@ -105,7 +100,6 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight=".4"
-                            android:background="@android:color/transparent"
                             android:padding="8dp"
                             android:src="@drawable/ic_add_alarm_grey_200_24dp" />
 
@@ -120,10 +114,9 @@
                             android:paddingRight="8dp"
                             android:paddingBottom="8dp"
                             android:text="@string/remind_me"
-                            android:textColor="@color/secondary_text"
                             android:textSize="16sp" />
 
-                        <android.support.v7.widget.SwitchCompat
+                        <androidx.appcompat.widget.SwitchCompat
                             android:id="@+id/toDoHasDateSwitchCompat"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -139,7 +132,6 @@
                             android:layout_margin="8dp"
                             android:layout_weight=".37"
                             android:background="@drawable/ic_content_copy_black_24dp"
-                            android:backgroundTint="@color/grey600"
                             android:padding="8dp"
                             android:visibility="visible" />
 
@@ -205,7 +197,6 @@
                             android:layout_weight="2"
                             android:gravity="start"
                             android:text="@string/remind_date_and_time"
-                            android:textColor="@color/secondary_text"
                             android:textSize="14sp" />
 
                     </LinearLayout>
@@ -215,15 +206,17 @@
 
             </LinearLayout>
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/makeToDoFloatingActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
-                android:src="@drawable/ic_send_white_18dp" />
-
-        </android.support.design.widget.CoordinatorLayout>
+                android:src="@drawable/ic_send_white_18dp"
+                app:fabSize="normal"
+                app:layout_anchor="@id/editTextParentLinearLayout"
+                app:layout_anchorGravity="bottom|right" />
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </LinearLayout>
 
 </FrameLayout>
