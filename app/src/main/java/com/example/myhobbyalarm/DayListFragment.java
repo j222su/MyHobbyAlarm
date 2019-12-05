@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+
 public class DayListFragment extends Fragment implements View.OnClickListener {
     private String TAG = "DayListFragment : ";
     private String day;
@@ -57,6 +59,6 @@ public class DayListFragment extends Fragment implements View.OnClickListener {
 
     /** MainActivity와 Fragment간의 데이터 전달하기 위한 인터페이스 선언*/
     public interface OnDayListFragmentInteractionListener {
-        void onDayListFragmentInteraction(String day);
+        void onDayListFragmentInteraction(ArrayList<ToDoItem> list);
     }
 }

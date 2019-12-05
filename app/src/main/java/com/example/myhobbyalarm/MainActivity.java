@@ -10,10 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements CalendarFragment.OnCalendarFragmentInteractionListener,
         DayListFragment.OnDayListFragmentInteractionListener,
         TodoAddFragment.OnTodoAddFragmentInteractionListener {
-
 
 
     FrameLayout frameLayout;
@@ -21,6 +22,8 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
     private String event;
 
     private static String DAY_INDEX = "SELECTED_DAY";
+
+    private static ArrayList<ToDoItem> mToDoItemsArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,19 +64,18 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
     }
 
     @Override
-    public void onCalendarFragmentInteraction(String day) {
-        this.day = day;
+    public void onCalendarFragmentInteraction(ArrayList<ToDoItem> list) {
+        mToDoItemsArrayList = list;;
     }
 
 
     @Override
-    public void onDayListFragmentInteraction(String day) {
-        this.day = day;
+    public void onDayListFragmentInteraction(ArrayList<ToDoItem> list) {
+        mToDoItemsArrayList = list;;
     }
 
     @Override
-    public void onTodoAddFragmentInteraction(String day, String event) {
-        this.day = day;
-        this.event = event;
+    public void onTodoAddFragmentInteraction(ArrayList<ToDoItem> list) {
+        mToDoItemsArrayList = list;
     }
 }
