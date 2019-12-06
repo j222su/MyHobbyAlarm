@@ -16,6 +16,14 @@
             android:text="@string/calendar_test"
             android:textSize="30sp" />
 
+        <com.prolificinteractive.materialcalendarview.MaterialCalendarView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/calendarView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:mcv_selectionColor="#a9dbf0cb"
+            app:mcv_showOtherDates="defaults" />
+
         <Button
             android:id="@+id/btnDay"
             android:layout_width="wrap_content"

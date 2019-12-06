@@ -6,24 +6,23 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements CalendarFragment.OnCalendarFragmentInteractionListener,
         DayListFragment.OnDayListFragmentInteractionListener,
         TodoAddFragment.OnTodoAddFragmentInteractionListener {
 
+    private static ArrayList<ToDoItem> mToDoItemsArrayList = new ArrayList<ToDoItem>();
 
-    FrameLayout frameLayout;
-    private String day;
-    private String event;
+    private FrameLayout frameLayout;
 
-    private static String DAY_INDEX = "SELECTED_DAY";
-
-    private static ArrayList<ToDoItem> mToDoItemsArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,32 +31,25 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
 
         frameLayout = findViewById(R.id.frameLayout);
 
-
-        day = "2019,10,20";
-
         replaceFragment(new CalendarFragment());
-
-//        FragmentTransaction ft =
-//                getSupportFragmentManager().beginTransaction();
-//        ft.add(R.id.frameLayout,CalendarFragment.newInstance(day)).commit();
-//        Fragment fragmentActivity = null;
-//        fragmentActivity = new CalendarFragment();
-//
-//        Bundle bundle = new Bundle();
-//        bundle.putString(DAY_INDEX, day);
-//        fragmentActivity.setArguments(bundle);
-//        ft.replace(R.id.frameLayout, fragmentActivity);
-//        ft.commit();
 
     }
 
+    public ArrayList<ToDoItem> mToDoItemsArrayListEventSetting() {
+        for (int i = 1; i < 20; i++) {
+            mToDoItemsArrayList.add(new ToDoItem(
+                    "1", "des 1",true,
+                    new Date(2019, 12, i, 12, 12, 0)));
+            Log.d("mToDoItems ",""+i);
+        }
+        return mToDoItemsArrayList;
+    }
 
-    /** Fragment에서 Fragment를 화면 전환하기 위한 함수 선언*/
+
+    /**
+     * Fragment에서 Fragment를 화면 전환하기 위한 함수 선언
+     */
     public void replaceFragment(Fragment fragment) {
-        Bundle bundle = new Bundle(1);
-        bundle.putString(DAY_INDEX, day);
-        fragment.setArguments(bundle);
-
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout, fragment).commit();      // Fragment로 사용할 MainActivity내의 layout공간을 선택합니다.
@@ -65,17 +57,16 @@ public class MainActivity extends AppCompatActivity implements CalendarFragment.
 
     @Override
     public void onCalendarFragmentInteraction(ArrayList<ToDoItem> list) {
-        mToDoItemsArrayList = list;;
+        this.mToDoItemsArrayList = list;
     }
-
 
     @Override
     public void onDayListFragmentInteraction(ArrayList<ToDoItem> list) {
-        mToDoItemsArrayList = list;;
+        this.mToDoItemsArrayList = list;
     }
 
     @Override
     public void onTodoAddFragmentInteraction(ArrayList<ToDoItem> list) {
-        mToDoItemsArrayList = list;
+        this.mToDoItemsArrayList = list;
     }
 }

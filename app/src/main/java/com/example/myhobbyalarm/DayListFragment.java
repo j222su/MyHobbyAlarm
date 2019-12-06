@@ -18,15 +18,14 @@ public class DayListFragment extends Fragment implements View.OnClickListener {
     private String TAG = "DayListFragment : ";
     private String day;
     private static String DAY_INDEX = "SELECTED_DAY";
+    private static ArrayList<ToDoItem> mToDoItemsArrayList = new ArrayList<ToDoItem>();
 
     public DayListFragment() {
     }
 
-    public static Fragment newInstance(String day) {
+    public static Fragment newInstance(ArrayList<ToDoItem> list) {
         DayListFragment dayListFragment = new DayListFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString(DAY_INDEX,day);
-        dayListFragment.setArguments(bundle);
+        mToDoItemsArrayList = list;
         return dayListFragment;
     }
 
@@ -35,7 +34,6 @@ public class DayListFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.day_list_fragment, container, false);
 
-        day = getArguments().getString(DAY_INDEX);
         TextView tvDay = view.findViewById(R.id.tvDay);
         tvDay.setText(day);
 
@@ -53,7 +51,7 @@ public class DayListFragment extends Fragment implements View.OnClickListener {
          * MainActivity에 선언된 함수 사용
          * 새로 불러올 Fragment의 Instance를 Main으로 전달
          * */
-        ((MainActivity) getActivity()).replaceFragment(TodoAddFragment.newInstance(day));
+        ((MainActivity) getActivity()).replaceFragment(TodoAddFragment.newInstance(mToDoItemsArrayList));
 
     }
 

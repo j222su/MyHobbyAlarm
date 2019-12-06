@@ -3,10 +3,11 @@ package com.example.myhobbyalarm;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 
-class ToDoItem {
+public class ToDoItem implements Serializable {
 
     /**
      * for JSON
@@ -36,6 +37,10 @@ class ToDoItem {
     private static final String TODOCOLOR = "todocolor";
     private static final String TODODATE = "tododate";
     private static final String TODOIDENTIFIER = "todoidentifier";
+
+    public ToDoItem() {
+        this("Clean my room","Sweep and Mop my Room", true, new Date());
+    }
 
     /**
      * TODO
@@ -90,10 +95,6 @@ class ToDoItem {
         jsonObject.put(TODOIDENTIFIER, mTodoIdentifier.toString());
 
         return jsonObject;
-    }
-
-    public ToDoItem() {
-        this("Clean my room","Sweep and Mop my Room", true, new Date());
     }
 
     public String getmToDoDescription() { return mToDoDescription;}
