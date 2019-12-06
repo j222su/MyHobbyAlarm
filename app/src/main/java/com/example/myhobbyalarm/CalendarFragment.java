@@ -1,44 +1,80 @@
 package com.example.myhobbyalarm;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.myhobbyalarm.decorators.EventDecorator;
+import com.example.myhobbyalarm.decorators.OneDayDecorator;
+import com.example.myhobbyalarm.decorators.SaturdayDecorator;
+import com.example.myhobbyalarm.decorators.SundayDecorator;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.CalendarMode;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+
+import static android.content.Context.ALARM_SERVICE;
 
 public class CalendarFragment extends Fragment implements View.OnClickListener {
     private String TAG = "CalendarFragment : ";
-    private String day;
 
-    private static String DAY_INDEX = "SELECTED_DAY";
+    private static ArrayList<ToDoItem> mToDoItemsArrayList = new ArrayList<ToDoItem>();
+    private OnCalendarFragmentInteractionListener mListListener;
+    private static ToDoItem SELECTED_DAY;
 
 
-    /** Intent Code */
+    /**
+     * For MaterialCalendarView
+     */
+    private final OneDayDecorator oneDayDecorator = new OneDayDecorator();
+    Cursor cursor;
+    MaterialCalendarView materialCalendarView;
+    ArrayList<String> result = new ArrayList<String>();
+    ApiSimulator apiSimulator;
+
+    View view;
+    Context context;
+
+    /**
+     * Intent Code
+     */
     private static final int REQUEST_ID_TODO_ITEM = 100;
 
     public static final String DATE_TIME_FORMAT_12_HOUR = "MMM d, yyyy  h:mm a";
     public static final String DATE_TIME_FORMAT_24_HOUR = "MMM d, yyyy  k:mm";
 
-    View view;
-    Context context;
-
-    private static ArrayList<ToDoItem> mToDoItemsArrayList;
-
-
-    /** File Name */
+    /**
+     * File Name
+     */
     public static final String FILENAME = "todoitems.json";
 
-    /** File Code */
-    private static String SHARED_PREF_DATA_SET_CHANGED = "com.example.myminimaltest.datasetchanged";
+    /**
+     * File Code
+     */
+    public static final String SHARED_PREF_DATA_SET_CHANGED = "com.example.myminimaltest.datasetchanged";
     public static final String CHANGE_OCCURED = "com.example.myminimaltest.changeoccured";
     public static final String TODOITEM = "com.example.myminimaltest.MainActivity";
     public static final String THEME_PREFERENCES = "com.example.myminimaltest.themepref";
@@ -56,11 +92,20 @@ public class CalendarFragment extends Fragment implements View.OnClickListener {
     public static Fragment newInstance(ArrayList<ToDoItem> list) {
         CalendarFragment calendarFragment = new CalendarFragment();
         mToDoItemsArrayList = list;
-        Bundle bundle = new Bundle();
-
-//        bundle.putString(DAY_INDEX, day);
-        calendarFragment.setArguments(bundle);
         return calendarFragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnCalendarFragmentInteractionListener) {
+            mListListener = (OnCalendarFragmentInteractionListener) context;
+            mListListener.onCalendarFragmentInteraction(mToDoItemsArrayList);
+            mToDoItemsArrayList = ((MainActivity) getActivity()).mToDoItemsArrayListEventSetting();
+        } else {
+            throw new RuntimeException(context.toString() + "OnFragmentInteractionListener 구현");
+        }
+
     }
 
     @Nullable
@@ -69,13 +114,57 @@ public class CalendarFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.calendar_fragment, container, false);
         Log.d(TAG, "onCreateView");
 
-        day = getArguments().getString(DAY_INDEX);
-        TextView tvDay = view.findViewById(R.id.tvDay);
-        tvDay.setText(day);
-
+        materialCalendarView = (MaterialCalendarView) view.findViewById(R.id.calendarView);
         Button btnDay = view.findViewById(R.id.btnDay);
+
+        materialCalendarView.state().edit()
+                .setFirstDayOfWeek(Calendar.SUNDAY)
+                .setMinimumDate(CalendarDay.from(2017, 0, 1)) // 달력의 시작
+                .setMaximumDate(CalendarDay.from(2030, 11, 31)) // 달력의 끝
+                .setCalendarDisplayMode(CalendarMode.MONTHS)
+                .commit();
+
+        materialCalendarView.addDecorators(
+                new SundayDecorator(),
+                new SaturdayDecorator(),
+                oneDayDecorator);
+
+        eventDrow();
+        setAlarms();
+        materialCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                int Year = date.getYear();
+                int Month = date.getMonth() + 1;
+                int Day = date.getDay();
+
+                Log.i("Year test", Year + "");
+                Log.i("Month test", Month + "");
+                Log.i("Day test", Day + "");
+
+                String shot_Day = Year + "," + Month + "," + Day;
+
+
+                Log.i("shot_Day test", shot_Day + "");
+                materialCalendarView.clearSelection();
+
+                Toast.makeText(getActivity(), shot_Day + "\n" + getContext(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         btnDay.setOnClickListener(this);
         return view;
+    }
+
+    private void eventDrow() {
+        for (ToDoItem list : mToDoItemsArrayList) {
+            String date = list.getToDoDate().getYear()+","
+                    +list.getToDoDate().getMonth()+","
+                    +list.getToDoDate().getDay();
+            Log.d("eventDrow", date);
+            result.add(date);
+        }
+        apiSimulator = (ApiSimulator) new ApiSimulator(result).executeOnExecutor(Executors.newSingleThreadExecutor());
     }
 
     @Override
@@ -86,12 +175,102 @@ public class CalendarFragment extends Fragment implements View.OnClickListener {
          * MainActivity에 선언된 함수 사용
          * 새로 불러올 Fragment의 Instance를 Main으로 전달
          * */
-        ((MainActivity) getActivity()).replaceFragment(DayListFragment.newInstance(day));
+        ((MainActivity) getActivity()).replaceFragment(DayListFragment.newInstance(mToDoItemsArrayList));
 
     }
 
-    /** MainActivity와 Fragment간의 데이터 전달하기 위한 인터페이스 선언*/
+    /**
+     * MainActivity와 Fragment간의 데이터 전달하기 위한 인터페이스 선언
+     */
     public interface OnCalendarFragmentInteractionListener {
         void onCalendarFragmentInteraction(ArrayList<ToDoItem> list);
+    }
+
+    private class ApiSimulator extends AsyncTask<Void, Void, List<CalendarDay>> {
+
+        ArrayList<String> Time_Result;
+
+        ApiSimulator(ArrayList<String> Time_Result) {
+            this.Time_Result = Time_Result;
+        }
+
+        @Override
+        protected List<CalendarDay> doInBackground(@NonNull Void... voids) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            Calendar calendar = Calendar.getInstance();
+            ArrayList<CalendarDay> dates = new ArrayList<>();
+
+            /*특정날짜 달력에 점표시해주는곳*/
+            /*월은 0이 1월 년,일은 그대로*/
+            //string 문자열인 Time_Result 을 받아와서 ,를 기준으로짜르고 string을 int 로 변환
+            for (int i = 0; i < Time_Result.size(); i++) {
+                CalendarDay day = CalendarDay.from(calendar);
+                String[] time = Time_Result.get(i).split(",");
+                int year = Integer.parseInt(time[0]);
+                int month = Integer.parseInt(time[1]);
+                int dayy = Integer.parseInt(time[2]);
+
+                dates.add(day);
+                calendar.set(year, month - 1, dayy);
+            }
+            return dates;
+        }
+
+        @Override
+        protected void onPostExecute(@NonNull List<CalendarDay> calendarDays) {
+            super.onPostExecute(calendarDays);
+
+            if (getActivity().isFinishing()) {
+                return;
+            }
+            materialCalendarView.addDecorator(new EventDecorator(Color.RED, calendarDays, getActivity()));
+        }
+    }
+
+    private void setAlarms() {
+        if (mToDoItemsArrayList != null) {
+            for (ToDoItem item : mToDoItemsArrayList) {
+                if (item.hasReminder() && item.getToDoDate() != null) {
+                    if (item.getToDoDate().before(new Date())) {
+                        item.setToDoDate(null);
+                        continue;
+                    }
+                    Intent i = new Intent(getContext(), TodoNotificationService.class);
+                    i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
+                    i.putExtra(TodoNotificationService.TODOTEXT, item.getToDoText());
+                    createAlarm(i, item.getIdentifier().hashCode(), item.getToDoDate().getTime());
+                }
+            }
+        }
+    }
+
+    private AlarmManager getAlarmManager() {
+        return (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
+    }
+
+    private boolean doesPendingIntentExist(Intent i, int requestCode) {
+        PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_NO_CREATE);
+        return pi != null;
+    }
+
+    private void createAlarm(Intent i, int requestCode, long timeInMillis) {
+        AlarmManager am = getAlarmManager();
+        PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        am.set(AlarmManager.RTC_WAKEUP, timeInMillis, pi);
+//        Log.d("OskarSchindler", "createAlarm "+requestCode+" time: "+timeInMillis+" PI "+pi.toString());
+    }
+
+    private void deleteAlarm(Intent i, int requestCode) {
+        if (doesPendingIntentExist(i, requestCode)) {
+            PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_NO_CREATE);
+            pi.cancel();
+            getAlarmManager().cancel(pi);
+            Log.d("OskarSchindler", "PI Cancelled " + doesPendingIntentExist(i, requestCode));
+        }
     }
 }
