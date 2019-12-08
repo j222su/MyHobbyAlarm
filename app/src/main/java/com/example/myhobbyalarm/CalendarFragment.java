@@ -30,32 +30,26 @@ import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
-
-import static android.content.Context.ALARM_SERVICE;
 
 public class CalendarFragment extends Fragment implements View.OnClickListener {
     private String TAG = "CalendarFragment : ";
 
     private static ArrayList<ToDoItem> mToDoItemsArrayList = new ArrayList<ToDoItem>();
     private OnCalendarFragmentInteractionListener mListListener;
-    private static ToDoItem SELECTED_DAY;
-
+    private static ArrayList<ToDoItem> mToDoItemsSelected;
 
     /**
      * For MaterialCalendarView
      */
     private final OneDayDecorator oneDayDecorator = new OneDayDecorator();
-    Cursor cursor;
     MaterialCalendarView materialCalendarView;
     ArrayList<String> result = new ArrayList<String>();
+    String shot_Day;
     ApiSimulator apiSimulator;
 
-    View view;
     Context context;
 
     /**
@@ -95,6 +89,7 @@ public class CalendarFragment extends Fragment implements View.OnClickListener {
         return calendarFragment;
     }
 
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -130,7 +125,7 @@ public class CalendarFragment extends Fragment implements View.OnClickListener {
                 oneDayDecorator);
 
         eventDrow();
-        setAlarms();
+//        setAlarms();
         materialCalendarView.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
@@ -142,29 +137,30 @@ public class CalendarFragment extends Fragment implements View.OnClickListener {
                 Log.i("Month test", Month + "");
                 Log.i("Day test", Day + "");
 
-                String shot_Day = Year + "," + Month + "," + Day;
+                shot_Day = Year + "," + Month + "," + Day;
 
 
                 Log.i("shot_Day test", shot_Day + "");
                 materialCalendarView.clearSelection();
 
                 Toast.makeText(getActivity(), shot_Day + "\n" + getContext(), Toast.LENGTH_SHORT).show();
+
+                for(ToDoItem list : mToDoItemsArrayList){
+                    ToDoItem toDoItem = list;
+                    if(list.getDATE().equals(shot_Day)){
+                        mToDoItemsSelected.add(toDoItem);
+                    }
+                }
+
+                /**
+                 * list fragment
+                 * */
+                ((MainActivity) getActivity()).replaceFragment(DayListFragment.newInstance(mToDoItemsSelected, shot_Day));
             }
         });
 
         btnDay.setOnClickListener(this);
         return view;
-    }
-
-    private void eventDrow() {
-        for (ToDoItem list : mToDoItemsArrayList) {
-            String date = list.getToDoDate().getYear()+","
-                    +list.getToDoDate().getMonth()+","
-                    +list.getToDoDate().getDay();
-            Log.d("eventDrow", date);
-            result.add(date);
-        }
-        apiSimulator = (ApiSimulator) new ApiSimulator(result).executeOnExecutor(Executors.newSingleThreadExecutor());
     }
 
     @Override
@@ -175,8 +171,28 @@ public class CalendarFragment extends Fragment implements View.OnClickListener {
          * MainActivity에 선언된 함수 사용
          * 새로 불러올 Fragment의 Instance를 Main으로 전달
          * */
-        ((MainActivity) getActivity()).replaceFragment(DayListFragment.newInstance(mToDoItemsArrayList));
 
+        //추가 버튼을 누를시, 현재 날짜로 추가하기
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+        int mYear = calendar.get(Calendar.YEAR);
+        int mMonth = calendar.get(Calendar.MONTH);
+        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        shot_Day = mYear+","+mMonth+","+mDay;
+        ((MainActivity) getActivity()).replaceFragment(TodoAddFragment.newInstance(mToDoItemsArrayList,shot_Day));
+
+    }
+
+    private void eventDrow() {
+        for (ToDoItem list : mToDoItemsArrayList) {
+            String[] getDate = list.getDATE().split("/");
+            String date = getDate[2]+","+getDate[1]+","+getDate[0];
+            Log.d("eventDrow", date);
+            result.add(date);
+        }
+        apiSimulator = (ApiSimulator) new ApiSimulator(result).executeOnExecutor(Executors.newSingleThreadExecutor());
     }
 
     /**
@@ -232,45 +248,29 @@ public class CalendarFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void setAlarms() {
-        if (mToDoItemsArrayList != null) {
-            for (ToDoItem item : mToDoItemsArrayList) {
-                if (item.hasReminder() && item.getToDoDate() != null) {
-                    if (item.getToDoDate().before(new Date())) {
-                        item.setToDoDate(null);
-                        continue;
-                    }
-                    Intent i = new Intent(getContext(), TodoNotificationService.class);
-                    i.putExtra(TodoNotificationService.TODOUUID, item.getIdentifier());
-                    i.putExtra(TodoNotificationService.TODOTEXT, item.getToDoText());
-                    createAlarm(i, item.getIdentifier().hashCode(), item.getToDoDate().getTime());
-                }
-            }
-        }
-    }
-
-    private AlarmManager getAlarmManager() {
-        return (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
-    }
-
-    private boolean doesPendingIntentExist(Intent i, int requestCode) {
-        PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_NO_CREATE);
-        return pi != null;
-    }
-
-    private void createAlarm(Intent i, int requestCode, long timeInMillis) {
-        AlarmManager am = getAlarmManager();
-        PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
-        am.set(AlarmManager.RTC_WAKEUP, timeInMillis, pi);
-//        Log.d("OskarSchindler", "createAlarm "+requestCode+" time: "+timeInMillis+" PI "+pi.toString());
-    }
-
-    private void deleteAlarm(Intent i, int requestCode) {
-        if (doesPendingIntentExist(i, requestCode)) {
-            PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_NO_CREATE);
-            pi.cancel();
-            getAlarmManager().cancel(pi);
-            Log.d("OskarSchindler", "PI Cancelled " + doesPendingIntentExist(i, requestCode));
-        }
-    }
+//
+//    private AlarmManager getAlarmManager() {
+//        return (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
+//    }
+//
+//    private boolean doesPendingIntentExist(Intent i, int requestCode) {
+//        PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_NO_CREATE);
+//        return pi != null;
+//    }
+//
+//    private void createAlarm(Intent i, int requestCode, long timeInMillis) {
+//        AlarmManager am = getAlarmManager();
+//        PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
+//        am.set(AlarmManager.RTC_WAKEUP, timeInMillis, pi);
+////        Log.d("OskarSchindler", "createAlarm "+requestCode+" time: "+timeInMillis+" PI "+pi.toString());
+//    }
+//
+//    private void deleteAlarm(Intent i, int requestCode) {
+//        if (doesPendingIntentExist(i, requestCode)) {
+//            PendingIntent pi = PendingIntent.getService(getContext(), requestCode, i, PendingIntent.FLAG_NO_CREATE);
+//            pi.cancel();
+//            getAlarmManager().cancel(pi);
+//            Log.d("OskarSchindler", "PI Cancelled " + doesPendingIntentExist(i, requestCode));
+//        }
+//    }
 }

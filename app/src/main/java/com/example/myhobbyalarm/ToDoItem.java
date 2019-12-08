@@ -10,131 +10,108 @@ import java.util.UUID;
 public class ToDoItem implements Serializable {
 
     /**
-     * for JSON
-     *
      * 일정 기록에 사용될 변수
      * */
-    private String mToDoText;
-    private boolean mHasReminder;
-    //add description
-    private String mToDoDescription;
-    //    private Date mLastEdited;
-    private int mTodoColor;
-    private Date mToDoDate;
-    private UUID mTodoIdentifier;
-
-
-    /**
-     * for JSON
-     *
-     * 일정 기록에 사용된 변수를 불러올 시 사용할 TAG
-     * */
-    //add description
-    private static final String TODODESCRIPTION = "tododescription";
-    private static final String TODOTEXT = "todotext";
-    private static final String TODOREMINDER = "todoreminder";
-    //    private static final String TODOLASTEDITED = "todolastedited";
-    private static final String TODOCOLOR = "todocolor";
-    private static final String TODODATE = "tododate";
-    private static final String TODOIDENTIFIER = "todoidentifier";
-
-    public ToDoItem() {
-        this("Clean my room","Sweep and Mop my Room", true, new Date());
-    }
+    public String C_ID = "_id";
+    public String TITLE = "title";
+    public String TYPE = "type";
+    public String DETAIL = "description";
+    public String TIME = "time";
+    public String DATE = "date";
+    public String ALARM_TIMES = "alarmTimes";
+    public String CHANNEL_NAME = "channelName";
 
     /**
      * TODO
      * 포기/미루기/다음 알람 설정
      * */
 
-
-    public ToDoItem(String todoBody,String tododescription,  boolean hasReminder, Date toDoDate) {
-        mToDoText = todoBody;
-        mHasReminder = hasReminder;
-        mToDoDate = toDoDate;
-        mToDoDescription = tododescription;
-        mTodoColor = 1677725;
-        mTodoIdentifier = UUID.randomUUID();
+    public ToDoItem(String c_ID, String TITLE, String TYPE, String DETAIL, String TIME, String DATE, String ALARM_TIMES, String CHANNEL_NAME) {
+        C_ID = c_ID;
+        this.TITLE = TITLE;
+        this.TYPE = TYPE;
+        this.DETAIL = DETAIL;
+        this.TIME = TIME;
+        this.DATE = DATE;
+        this.ALARM_TIMES = ALARM_TIMES;
+        this.CHANNEL_NAME = CHANNEL_NAME;
     }
 
-
-    /**
-     * JSON 파일을 이용해서 저장된 이벤트 불러오기
-     */
-
-    public ToDoItem(JSONObject jsonObject) throws JSONException {
-        mToDoText = jsonObject.getString(TODOTEXT);
-        mToDoDescription = jsonObject.getString(TODODESCRIPTION);
-        mHasReminder = jsonObject.getBoolean(TODOREMINDER);
-        mTodoColor = jsonObject.getInt(TODOCOLOR);
-
-        mTodoIdentifier = UUID.fromString(jsonObject.getString(TODOIDENTIFIER));
-
-//        if(jsonObject.has(TODOLASTEDITED)){
-//            mLastEdited = new Date(jsonObject.getLong(TODOLASTEDITED));
-//        }
-        if (jsonObject.has(TODODATE)) {
-            mToDoDate = new Date(jsonObject.getLong(TODODATE));
-        }
+    @Override
+    public String toString() {
+        return "ToDoItem{" +
+                "C_ID='" + C_ID + '\'' +
+                ", TITLE='" + TITLE + '\'' +
+                ", TYPE='" + TYPE + '\'' +
+                ", DETAIL='" + DETAIL + '\'' +
+                ", TIME='" + TIME + '\'' +
+                ", DATE='" + DATE + '\'' +
+                ", ALARM_TIMES='" + ALARM_TIMES + '\'' +
+                ", CHANNEL_NAME='" + CHANNEL_NAME + '\'' +
+                '}';
     }
 
-
-    /**
-     * 일정을 JSON 파일로 저장하기
-     */
-    public JSONObject toJSON() throws JSONException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(TODOTEXT, mToDoText);
-        jsonObject.put(TODOREMINDER, mHasReminder);
-        jsonObject.put(TODODESCRIPTION, mToDoDescription);
-//        jsonObject.put(TODOLASTEDITED, mLastEdited.getTime());
-        if (mToDoDate != null) {
-            jsonObject.put(TODODATE, mToDoDate.getTime());
-        }
-        jsonObject.put(TODOCOLOR, mTodoColor);
-        jsonObject.put(TODOIDENTIFIER, mTodoIdentifier.toString());
-
-        return jsonObject;
+    public String getC_ID() {
+        return C_ID;
     }
 
-    public String getmToDoDescription() { return mToDoDescription;}
-
-    public void setmToDoDescription(String mToDoDescription){this.mToDoDescription = mToDoDescription;}
-
-    public String getToDoText() {
-        return mToDoText;
+    public void setC_ID(String c_ID) {
+        C_ID = c_ID;
     }
 
-    public void setToDoText(String mToDoText) {
-        this.mToDoText = mToDoText;
+    public String getTITLE() {
+        return TITLE;
     }
 
-    public boolean hasReminder() {
-        return mHasReminder;
+    public void setTITLE(String TITLE) {
+        this.TITLE = TITLE;
     }
 
-    public void setHasReminder(boolean mHasReminder) {
-        this.mHasReminder = mHasReminder;
+    public String getTYPE() {
+        return TYPE;
     }
 
-    public Date getToDoDate() {
-        return mToDoDate;
+    public void setTYPE(String TYPE) {
+        this.TYPE = TYPE;
     }
 
-    public int getTodoColor() {
-        return mTodoColor;
+    public String getDETAIL() {
+        return DETAIL;
     }
 
-    public void setTodoColor(int mTodoColor) {
-        this.mTodoColor = mTodoColor;
+    public void setDETAIL(String DETAIL) {
+        this.DETAIL = DETAIL;
     }
 
-    public void setToDoDate(Date mToDoDate) {
-        this.mToDoDate = mToDoDate;
+    public String getTIME() {
+        return TIME;
     }
 
+    public void setTIME(String TIME) {
+        this.TIME = TIME;
+    }
 
-    public UUID getIdentifier() {
-        return mTodoIdentifier;
+    public String getDATE() {
+        return DATE;
+    }
+
+    public void setDATE(String DATE) {
+        this.DATE = DATE;
+    }
+
+    public String getALARM_TIMES() {
+        return ALARM_TIMES;
+    }
+
+    public void setALARM_TIMES(String ALARM_TIMES) {
+        this.ALARM_TIMES = ALARM_TIMES;
+    }
+
+    public String getCHANNEL_NAME() {
+        return CHANNEL_NAME;
+    }
+
+    public void setCHANNEL_NAME(String CHANNEL_NAME) {
+        this.CHANNEL_NAME = CHANNEL_NAME;
     }
 }

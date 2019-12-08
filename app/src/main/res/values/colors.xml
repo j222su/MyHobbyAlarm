@@ -8,7 +8,7 @@
 
 
     <color name="listTitlePrimary">#3F51B5</color>
-
-
+    <color name="secondary_text">#727272</color>
+    <color name="blue">@android:color/holo_blue_light</color>
 
 </resources>
